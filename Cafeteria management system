@@ -1,0 +1,150 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+
+struct MenuItem {
+    string name;
+    double price;
+};
+
+
+struct Customer {
+    string name;
+    int tableNumber;
+    MenuItem orders[10]; 
+    int numOrders;
+};
+
+void displayMenu(MenuItem menu[], int numMenuItems) {
+    cout << "Menu:" << endl;
+    for (int i = 0; i < numMenuItems; i++) {
+        cout << (i + 1) << ". " << menu[i].name << " - $" << menu[i].price << endl;
+    }
+}
+
+
+void takeOrder(Customer& customer, MenuItem menu[], int numMenuItems, int orderChoice) {
+    int choice;
+
+    if (orderChoice >= 1 && orderChoice <= numMenuItems) {
+        customer.orders[customer.numOrders] = menu[orderChoice - 1];
+        customer.numOrders++;
+        cout << "Order placed successfully!" << endl;
+    } else {
+        cout << "Invalid choice. Please try again." << endl;
+    }
+}
+
+
+void displayOrders(Customer customer) {
+    cout << "Orders for " << customer.name << " (Table " << customer.tableNumber << "):" << endl;
+    for (int i = 0; i < customer.numOrders; i++) {
+        cout << (i + 1) << ". " << customer.orders[i].name << " - $" << customer.orders[i].price << endl;
+    }
+}
+
+double calculateBill(Customer customer) {
+    double total = 0;
+    for (int i = 0; i < customer.numOrders; i++) {
+        total += customer.orders[i].price;
+    }
+    return total;
+}
+
+int main() {
+    const int MAX_MENU_ITEMS = 10;
+    const int MAX_CUSTOMERS = 10;
+
+    MenuItem menu[MAX_MENU_ITEMS] = {
+        {"Latte", 3.50},
+        {"Cappuccino", 4.00},
+        {"Mocha", 4.50},
+        {"Tea", 2.00},
+        {"Coffee", 2.50},
+        {"Sandwich", 5.00},
+        {"Salad", 6.00},
+        {"Burger", 7.00}
+    };
+
+    int numMenuItems = 8;
+
+    Customer customers[MAX_CUSTOMERS];
+    int numCustomers = 0;
+
+    while (true) {
+        cout << "Cafe Management System" << endl;
+        cout << "1. Take Order" << endl;
+        cout << "2. Display Orders" << endl;
+        cout << "3. Calculate Bill" << endl;
+        cout << "4. Exit" << endl;
+        cout << "Enter your choice: ";
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                if (numCustomers < MAX_CUSTOMERS) {
+                    Customer customer;
+                    cout << "Enter customer name: ";
+                    cin >> customer.name;
+                    cout << "Enter table number: ";
+                    cin >> customer.tableNumber;
+                    customer.numOrders = 0;
+
+                    while (true) {
+                        displayMenu(menu, numMenuItems);
+                        cout << "Enter 0 to finish ordering, or enter your choice(1-8): ";
+                        int orderChoice;
+                        cin >> orderChoice;
+                        if (orderChoice == 0) {
+                            break;
+                        } else {
+                            takeOrder(customer, menu, numMenuItems, orderChoice);
+                        }
+                    }
+
+                    customers[numCustomers] = customer;
+                    numCustomers++;
+                } else {
+                    cout << "Maximum number of customers reached." << endl;
+                }
+                break;
+            }
+            case 2: {
+                int tableNumber;
+                cout << "Enter customer table number: ";
+                cin >> tableNumber;
+
+                for (int i = 0; i < numCustomers; i++) {
+                    if (customers[i].tableNumber == tableNumber) {
+                        displayOrders(customers[i]);
+                        break;
+                    }
+                }
+                break;
+            }
+            case 3: {
+                int tableNumber;
+                cout << "Enter customer table number: ";
+                cin >> tableNumber;
+
+                for (int i = 0; i < numCustomers; i++) {
+                    if (customers[i].tableNumber == tableNumber) {
+                        double totalBill = calculateBill(customers[i]);
+                        cout << "Total bill for " << customers[i].name << " (Table " << customers[i].tableNumber<< "): $" << totalBill << endl;
+                        break;
+                    }
+                }
+                break;
+            }
+            case 4:
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    }
+
+    return 0;
+}
